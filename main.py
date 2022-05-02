@@ -1,31 +1,32 @@
-from flask import Flask, url_for, request, render_template
+from collections import namedtuple
+
+from flask import Flask, render_template, redirect, url_for, request
+
+from src.close_animal import get_close_animals
 
 app = Flask(__name__)
 
-
-@app.route('/')
-def main_page():
-    return render_template('main.html', text='May be it will make you happy')
-
-
-@app.route("/carousel")
-def carousel():
-    return render_template('carousel.html')
+Message = namedtuple('Message', 'dog lev_dog cat lev_cat')
+messages = [Message('', '', 0, 0)]
+person = '[your word]'
 
 
-@app.route('/loadim', methods=['POST', 'GET'])
-def sample_file_upload():
-    if request.method == 'GET':
-        return render_template('load.html')
-    elif request.method == 'POST':
-        f = request.files['file']
-        if os.getcwd()[-11:] != "/static/img":
-            os.chdir("./static/img")
-        out = open("img.jpg", "wb")
-        out.write(f.read())
-        out.close()
-        return render_template('load.html')
+@app.route('/', methods=['GET'])
+def hello_world():
+    return render_template('index.html')
 
 
-if __name__ == "__main__":
-    app.run(host='127.0.0.1', port=8089)
+@app.route('/main', methods=['GET'])
+def main():
+    return render_template('main.html', messages=messages, name=person)
+
+
+@app.route('/add_message', methods=['POST'])
+def add_message():
+    global person
+    text = request.form['text']
+    person = text[::]
+    messages.pop()
+    close_animals = get_close_animals(text)
+    messages.append(Message(close_animals[0], close_animals[1], close_animals[2], close_animals[3]))
+    return redirect(url_for('main'))
