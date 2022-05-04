@@ -7,7 +7,7 @@ from src.close_animal import get_close_animals
 app = Flask(__name__)
 
 Message = namedtuple('Message', 'dog lev_dog cat lev_cat')
-messages = [Message('', '', 0, 0)]
+messages = [Message('', 0, '', 0)]
 person = '[your word]'
 
 
@@ -28,5 +28,7 @@ def add_message():
     person = text[::]
     messages.pop()
     close_animals = get_close_animals(text)
-    messages.append(Message(close_animals[0], close_animals[1], close_animals[2], close_animals[3]))
+    print(close_animals)
+    messages.append(Message(close_animals[0][0].upper() + close_animals[0][1:], close_animals[1],
+                            close_animals[2][0].upper() + close_animals[2][1:], close_animals[3]))
     return redirect(url_for('main'))
